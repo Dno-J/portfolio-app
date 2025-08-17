@@ -60,18 +60,16 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 # ===================== Contact Form =====================
 @app.post("/contact", tags=["Contact"])
 def submit_contact(form: ContactForm, session: Session = Depends(get_session)):
-    """
-    Submit a contact form and store it in the database.
-    """
-    contact = Contact(**form.dict())
-    session.add(contact)
-    session.commit()
-    session.refresh(contact)
-
-    logger.info(f"New contact: {contact.name} <{contact.email}>")
-    logger.info(f"Message: {contact.message}")
-
-    return {"status": "success", "message": "Thanks for reaching out!"}
+    try:
+        contact = Contact(**form.dict())
+        session.add(contact)
+        session.commit()
+        session.refresh(contact)
+        return {"status": "success", "message": "Thanks for reaching out!"}
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Contact form submission failed: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 # ===================== Protected Dashboard =====================
 @app.get("/submissions", response_model=List[Contact], tags=["Admin"])
