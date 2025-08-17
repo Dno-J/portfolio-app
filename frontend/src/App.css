@@ -1,0 +1,173 @@
+/* --- Variables for Light Mode (default) --- */
+:root {
+  --card-bg: #fff;
+  --card-text: #000;
+  --badge-bg: #e0e0e0;
+  --badge-text: #333;
+  --caption-text: #555;
+  --link-label: #000;
+  --link-icon: #000;
+}
+
+/* --- Dark Mode Variables --- */
+body.dark-mode {
+  --card-bg: #1e1e1e;
+  --card-text: #e0e0e0;
+  --badge-bg: #333;
+  --badge-text: #f0f0f0;
+  --caption-text: #ccc;
+  --link-label: #fff;
+  --link-icon: #fff;
+}
+
+/* --- Project Card Styling --- */
+.project-card {
+  background-color: var(--card-bg);
+  color: var(--card-text);
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
+  max-width: 600px;
+  flex: 1 1 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.project-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* --- Tech badges --- */
+.tech-badge-container {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.project-card .tech-badge {
+  display: inline-block;
+  padding: 0.35rem 0.65rem;
+  background-color: var(--badge-bg);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: var(--badge-text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* --- Carousel --- */
+.project-card .carousel-container {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.project-card .carousel-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  user-select: none;
+}
+
+.project-card .carousel-button.prev {
+  left: 0.5rem;
+}
+
+.project-card .carousel-button.next {
+  right: 0.5rem;
+}
+
+.project-card .carousel-caption {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  text-align: center;
+  color: var(--caption-text);
+  transition: color 0.3s;
+}
+
+/* --- Links --- */
+.project-card .links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.project-card .links div {
+  color: var(--link-label);
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.project-card .links a {
+  color: var(--link-icon);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: transform 0.2s;
+}
+
+.project-card .links a:hover {
+  transform: scale(1.1);
+}
+
+/* --- Lightbox --- */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.lightbox-container {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.lightbox-container img {
+  width: auto;
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Responsive --- */
+@media (max-width: 1024px) {
+  .project-card { flex: 1 1 45%; }
+}
+
+@media (max-width: 768px) {
+  .project-card {
+    max-width: 90%;
+    flex: 1 1 90%;
+    margin: 0 auto;
+  }
+}
