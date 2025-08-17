@@ -19,14 +19,16 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Portfolio Backend", version="1.0.0")
 
 # ===================== CORS Setup =====================
+EC2_PUBLIC_IP = "http://16.171.148.202:3000"  # Frontend served on EC2 or via Nginx
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",   # React frontend in Docker
-        "http://localhost:3001",   # React dev server
-        "http://127.0.0.1:3000",   # Alternative localhost
-        "http://127.0.0.1:3001",   # Alternative localhost
-        "https://portfolio.yourdomain.com",  # Production domain (replace with real)
+        "http://localhost:3000",   # Local dev frontend
+        "http://localhost:3001",   # Alternative local dev
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        EC2_PUBLIC_IP,             # EC2 frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -73,7 +75,6 @@ def submit_contact(form: ContactForm, session: Session = Depends(get_session)):
     session.commit()
     session.refresh(contact)
 
-    # Logging for server console instead of print()
     logger.info(f"New contact: {contact.name} <{contact.email}>")
     logger.info(f"Message: {contact.message}")
 

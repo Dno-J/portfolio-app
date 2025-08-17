@@ -2,42 +2,29 @@ services:
   # ===================== Backend Service =====================
   backend:
     build:
-      context: ./backend  # Build from backend folder
+      context: ./backend
     container_name: fastapi-backend
     ports:
-      - "8000:8000"  # Expose FastAPI app on host
-    # In production, volumes are not needed (immutable container)
-    # For local development with hot reload, uncomment below:
-    # volumes:
-    #   - ./backend:/app
+      - "8001:8001"  # Exposed port matches EC2 deployment
     environment:
-      # Database connection URL (Neon Postgres)
       DATABASE_URL: ${DATABASE_URL:-postgresql://neondb_owner:npg_4MUWBoINacC7@ep-green-river-a15s6nph-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require}
-      # Admin credentials (override via .env)
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
-      # Secret key for JWT
       SECRET_KEY: ${SECRET_KEY:-your-super-secret-key}
-    depends_on: []
-    # CMD is defined in Dockerfile using Gunicorn + Uvicorn (production-ready)
+    # CMD is defined in Dockerfile (Gunicorn + Uvicorn)
 
   # ===================== Frontend Service =====================
   frontend:
     build:
-      context: ./frontend  # Build from frontend folder
+      context: ./frontend
     container_name: react-frontend
     ports:
-      - "80:80"  # Serve frontend via Nginx on standard HTTP port
-    # Volumes only needed for local development (hot reload)
-    # volumes:
-    #   - ./frontend:/app
+      - "80:80"  # Standard HTTP port for Nginx
     environment:
-      - CHOKIDAR_USEPOLLING=true  # Enables file watching in Docker
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
-      - backend  # Ensure backend starts first
+      - backend
 
 # ===================== Notes =====================
-# - In production, containers are immutable: avoid volumes for code syncing.
-# - Use .env file to define secrets like ADMIN_USERNAME, ADMIN_PASSWORD, SECRET_KEY, DATABASE_URL.
-# - Backend uses Gunicorn with Uvicorn workers for better performance.
-# - Frontend is served by Nginx, routing /api/ requests to backend container.
+# - Frontend / Nginx will proxy API requests to backend at 16.171.148.202:8001
+# - In production, avoid volumes; containers should be immutable
