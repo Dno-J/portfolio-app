@@ -2,21 +2,18 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
-import os
+from app.settings import settings
 
 # ===================== Config =====================
-SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key-for-dev")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
+SECRET_KEY = settings.JWT_SECRET_KEY
+ALGORITHM = settings.JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 # ===================== OAuth2 / Admin Credentials =====================
-# Dynamic backend URL for OAuth2 token (works in Docker & local dev)
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{BACKEND_URL}/login")
-
-# Load admin credentials directly from environment
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+BACKEND_URL = f"http://localhost:{settings.PORT}"  # Optional: dynamic token URL
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+ADMIN_USERNAME = settings.ADMIN_USERNAME
+ADMIN_PASSWORD = settings.ADMIN_PASSWORD
 
 # ===================== Helper Functions =====================
 def authenticate_user(username: str, password: str) -> bool:

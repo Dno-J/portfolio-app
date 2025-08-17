@@ -13,7 +13,7 @@ const LoginForm = () => {
   const navigate = useNavigate();
 
   // Use environment variable for backend API URL
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8001";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,7 +21,7 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/login`, {
+      const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ username, password }),

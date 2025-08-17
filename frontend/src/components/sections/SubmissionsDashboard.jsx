@@ -12,9 +12,10 @@ const SubmissionsDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const API_URL = process.env.REACT_APP_API_URL || "/api";
     const token = localStorage.getItem("token");
 
-    fetch("/api/submissions", {
+    fetch(`${API_URL}/submissions`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -39,10 +40,11 @@ const SubmissionsDashboard = () => {
 
   const handleDownload = async () => {
     setLoadingCSV(true);
+    const API_URL = process.env.REACT_APP_API_URL || "/api";
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch("/api/export", {
+      const res = await fetch(`${API_URL}/export`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

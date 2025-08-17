@@ -2,10 +2,11 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlmodel import Session, SQLModel
+from sqlmodel import select, Session, SQLModel
 from app.models import ContactForm, Contact
 from app.database import get_session
 from app.auth import authenticate_user, create_access_token, get_current_user
+from app.settings import settings
 from typing import List
 from datetime import datetime
 import csv
@@ -19,17 +20,9 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Portfolio Backend", version="1.0.0")
 
 # ===================== CORS Setup =====================
-EC2_PUBLIC_IP = "http://16.171.148.202:3000"  # Frontend served on EC2 or via Nginx
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",   # Local dev frontend
-        "http://localhost:3001",   # Alternative local dev
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:3001",
-        EC2_PUBLIC_IP,             # EC2 frontend
-    ],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -89,7 +82,7 @@ def get_submissions(
     """
     Return all contact submissions for authenticated admin user.
     """
-    return session.query(Contact).order_by(Contact.timestamp.desc()).all()
+    return session.exec(select(Contact).order_by(Contact.timestamp.desc())).all()
 
 # ===================== CSV Export =====================
 @app.get("/export", tags=["Admin"])
@@ -100,7 +93,7 @@ def export_submissions(
     """
     Export contact submissions to CSV for authenticated admin user.
     """
-    contacts = session.query(Contact).order_by(Contact.timestamp.desc()).all()
+    contacts = session.exec(select(Contact).order_by(Contact.timestamp.desc())).all()
 
     output = io.StringIO()
     writer = csv.writer(output)

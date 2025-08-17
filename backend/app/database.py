@@ -1,17 +1,16 @@
 from sqlmodel import create_engine, Session
-import os
+from app.settings import settings
 
 # ===================== Database Configuration =====================
-# Read DATABASE_URL from environment variable.
-# This allows easy switching between local Postgres, Docker, or Neon Postgres.
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:postgres@db:5432/portfolio"  # default local dev URL
-)
+DATABASE_URL = settings.DATABASE_URL
 
-# Create SQLModel engine
+# Create SQLModel engine with SSL mode for NeonDB
 # echo=True prints SQL logs, useful for debugging. Disable in production if verbose.
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(
+    DATABASE_URL,
+    echo=True,
+    connect_args={"sslmode": "require"}
+)
 
 # ===================== Dependency =====================
 def get_session():
