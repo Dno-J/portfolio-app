@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Portfolio Backend", version="1.0.0")
+api_router = APIRouter()
 
 # ===================== CORS Setup =====================
 app.add_middleware(
@@ -27,13 +28,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+print("Parsed ALLOWED_ORIGINS:", settings.ALLOWED_ORIGINS)
 
 # ===================== Startup Event =====================
 @app.on_event("startup")
 def on_startup():
-    """
-    Create database tables automatically on startup if they don't exist.
-    """
     from app.database import engine
     SQLModel.metadata.create_all(engine)
 
@@ -42,23 +41,25 @@ def on_startup():
 def read_root():
     return {"message": "Portfolio backend is running!"}
 
-@app.get("/ping", tags=["Health"])
-def ping():
-    return {"message": "pong"}
+@api_router.get("/ping", tags=["Health"])
+def ping(session: Session = Depends(get_session)):
+    try:
+        session.exec(select(Contact).limit(1)).all()
+        return {"message": "pong", "db": "ok"}
+    except Exception as e:
+        logger.error(f"DB ping failed: {e}")
+        return {"message": "pong", "db": "error", "detail": str(e)}
 
 # ===================== Authentication =====================
-@app.post("/login", tags=["Auth"])
+@api_router.post("/login", tags=["Auth"])
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    """
-    Authenticate user with username/password and return JWT token.
-    """
     if not authenticate_user(form_data.username, form_data.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     token = create_access_token(data={"sub": form_data.username})
     return {"access_token": token, "token_type": "bearer"}
 
 # ===================== Contact Form =====================
-@app.post("/contact", tags=["Contact"])
+@api_router.post("/contact", tags=["Contact"])
 def submit_contact(form: ContactForm, session: Session = Depends(get_session)):
     try:
         contact = Contact(**form.dict())
@@ -72,25 +73,13 @@ def submit_contact(form: ContactForm, session: Session = Depends(get_session)):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 # ===================== Protected Dashboard =====================
-@app.get("/submissions", response_model=List[Contact], tags=["Admin"])
-def get_submissions(
-    session: Session = Depends(get_session),
-    user: str = Depends(get_current_user)
-):
-    """
-    Return all contact submissions for authenticated admin user.
-    """
+@api_router.get("/submissions", response_model=List[Contact], tags=["Admin"])
+def get_submissions(session: Session = Depends(get_session), user: str = Depends(get_current_user)):
     return session.exec(select(Contact).order_by(Contact.timestamp.desc())).all()
 
 # ===================== CSV Export =====================
-@app.get("/export", tags=["Admin"])
-def export_submissions(
-    session: Session = Depends(get_session),
-    user: str = Depends(get_current_user)
-):
-    """
-    Export contact submissions to CSV for authenticated admin user.
-    """
+@api_router.get("/export", tags=["Admin"])
+def export_submissions(session: Session = Depends(get_session), user: str = Depends(get_current_user)):
     contacts = session.exec(select(Contact).order_by(Contact.timestamp.desc())).all()
 
     output = io.StringIO()
@@ -106,3 +95,6 @@ def export_submissions(
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+# ===================== Mount API Router =====================
+app.include_router(api_router, prefix="/api")

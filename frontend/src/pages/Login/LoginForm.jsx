@@ -6,14 +6,14 @@ import { FaUser, FaLock } from "react-icons/fa";
 
 const LoginForm = () => {
   const { darkMode } = useContext(ThemeContext);
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("admin123");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Use environment variable for backend API URL
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8001";
+  const API_URL = process.env.REACT_APP_API_BASE_URL;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,7 +21,7 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/login`, {
+      const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ username, password }),
@@ -71,14 +71,16 @@ const LoginForm = () => {
           {error && <p className="status error">{error}</p>}
         </form>
 
-        {/* Quick login info section */}
-        <div className="quick-login-info">
-          <p>Quick Login Info:</p>
-          <div className="login-details">
-            <span><FaUser /> Username: <strong>admin</strong></span>
-            <span><FaLock /> Password: <strong>admin123</strong></span>
+        {/* Quick login info section (dev only) */}
+        {process.env.NODE_ENV !== "production" && (
+          <div className="quick-login-info">
+            <p>Quick Login Info:</p>
+            <div className="login-details">
+              <span><FaUser /> Username: <strong>jacksondino</strong></span>
+              <span><FaLock /> Password: <strong>Onedirection@22</strong></span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

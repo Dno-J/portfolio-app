@@ -10,6 +10,8 @@ const ContactForm = () => {
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
 
+  const API_URL = process.env.REACT_APP_API_BASE_URL;
+
   const handleChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
@@ -35,13 +37,13 @@ const ContactForm = () => {
     setError('');
     setStatus('Sending...');
     try {
-      const res = await fetch('/api/contact', {  // updated to proxy path
+      const res = await fetch(`${API_URL}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) {  // proper error handling
+      if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.detail || 'Failed to send message.');
       }
