@@ -13,6 +13,6 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = Field(default_factory=list)
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
 
 settings = Settings()

@@ -7,14 +7,14 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Install dependencies (using npm ci if shrinkwrap exists)
-COPY frontend/package.json frontend/npm-shrinkwrap.json ./
+COPY package.json npm-shrinkwrap.json ./
 RUN npm ci --silent
 
 # Copy environment variables for React build
 COPY .env .env
 
 # Copy the rest of the frontend source code
-COPY frontend/. ./
+COPY . ./
 
 # Build optimized production files
 RUN npm run build
@@ -32,7 +32,7 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/build /usr/share/nginx/html
 
 # Copy custom nginx config
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
