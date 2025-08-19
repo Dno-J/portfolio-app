@@ -95,6 +95,12 @@ Interactive dashboard for managing portfolio form submissions (e.g., contact req
 
 ```
 portfolio-app/
+├── .gitignore                   # Ignore files/folders for git
+├── docker-compose.yml           # Multi-container orchestration (backend + frontend + db + nginx)
+├── README.md                    # Project documentation
+├── LICENSE                      # License file
+├── .env                         # Environment variables (NOT committed, use .env.example instead)
+├── .env.example                 # Sample env file for reference
 ├── backend/
 │   ├── Dockerfile               # Backend container setup
 │   ├── requirements.txt         # Python dependencies
