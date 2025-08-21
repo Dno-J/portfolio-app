@@ -1,7 +1,7 @@
 # 🚀 Portfolio App
 
 [![GitHub](https://img.shields.io/badge/Dno--J%2Fportfolio--app-181717?logo=github)](https://github.com/Dno-J/portfolio-app) 
-[![Live App — AWS EC2](https://img.shields.io/badge/Live%20App%20EC2-FF9900?logo=amazonaws&logoColor=white&style=flat-square)](http://16.171.148.202) 
+[![Live App — AWS EC2](https://img.shields.io/badge/Live%20App%20EC2-FF9900?logo=amazonaws&logoColor=white&style=flat-square)](https://portfolio.dinojackson.site/) 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?logo=linkedin)](https://www.linkedin.com/in/dino-jackson-486840368/) 
 [![Last Commit](https://img.shields.io/github/last-commit/Dno-J/portfolio-app?style=flat-square)](https://github.com/Dno-J/portfolio-app/commits/main) 
 ![Stars](https://img.shields.io/github/stars/Dno-J/portfolio-app?style=flat-square) 
@@ -72,7 +72,7 @@ App will be available at `http://localhost:8001` or your EC2 IP.
 
 FastAPI auto-generates interactive docs at:
 
-http://16.171.148.202:8001/docs
+**API Documentation**: [Swagger UI](http://16.171.148.202:8001/docs)
 
 ## 🎥 Demo
 
@@ -88,7 +88,7 @@ Showcases my deployed projects (Job Tracker, BBMS, etc.) with live links and det
 Interactive dashboard for managing portfolio form submissions (e.g., contact requests).  
 ![Submissions Dashboard](frontend/src/assets/screenshots/portfolio/submissions_dashboard.png)
 
-🔗 [Live App on AWS EC2](http://16.171.148.202)
+🔗 [Live App on AWS EC2](https://portfolio.dinojackson.site)
 
 
 ## 🔧 File Structure
