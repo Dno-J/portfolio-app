@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
 import resume from "../../assets/resume/Dino_Jackson_Resume.pdf";
 import {
-  FaPython, FaDatabase, FaDocker, FaAws, FaGitAlt, FaFilePdf, FaReact, FaTasks, FaCheckCircle
+  FaPython, FaDatabase, FaDocker, FaAws, FaGitAlt, FaFilePdf, FaReact, FaTasks
 } from "react-icons/fa";
 
 const About = () => {
@@ -31,20 +31,6 @@ const About = () => {
   };
 
   const paragraphStyle = { marginBottom: "0.5rem" };
-  const projectLineStyle = {
-    marginBottom: "0.5rem",
-    padding: "0.4rem 0.6rem",
-    borderRadius: "6px",
-    transition: "background 0.3s ease, transform 0.2s ease",
-    display: "block",
-  };
-
-  const projectLineHoverStyle = {
-    background: darkMode
-      ? "linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.1))"
-      : "linear-gradient(90deg, rgba(0,199,183,0.1), rgba(0,123,255,0.1))",
-    transform: "scale(1.02)",
-  };
 
   const viewButtonStyle = {
     backgroundColor: darkMode ? "#ffffff" : "#121212",
@@ -87,7 +73,7 @@ const About = () => {
         <div style={{ marginBottom: "2rem" }}>
           <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>About Me</h2>
           <p style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
-            I am a Computer Science Engineering graduate from Geetanjali Institute of Technical Studies with hands-on experience in backend and full-stack web development. I specialize in building secure, scalable, and production-ready web applications with Python, Django, and FastAPI. My focus is on writing clean, maintainable code, deploying applications with Docker, and managing databases using PostgreSQL and SQLite.
+            I’m a Computer Science Engineering graduate from Geetanjali Institute of Technical Studies with a strong focus on backend and full-stack web development. I build secure, scalable, and production-ready applications using Python, Django, and FastAPI. I enjoy designing clean REST APIs, deploying systems with Docker, and working with PostgreSQL in production and SQLite during development.
           </p>
           <button
             onMouseEnter={handleViewButtonHover}
@@ -100,8 +86,29 @@ const About = () => {
           </button>
         </div>
 
-        {/* All other sections */}
         {[
+          {
+            title: "Professional Experience",
+            gradient: "linear-gradient(90deg, #00c7b7, #007bff)",
+            content: (
+              <>
+                <p style={paragraphStyle}><strong>Python Automation Developer — TrineBridge</strong></p>
+                <p style={paragraphStyle}>Nov 2023 – Jan 2025</p>
+                <p style={paragraphStyle}>Built and maintained Python automation for batch file processing, directory validation, and CSV workflows</p>
+                <p style={paragraphStyle}>Implemented robust error handling and structured logging to improve reliability</p>
+                <p style={paragraphStyle}>Standardized automation across 100+ deliverables, reducing manual effort and errors</p>
+                <p style={paragraphStyle}>Collaborated with team members to debug failures and refine automation scripts</p>
+
+                <br />
+
+                <p style={paragraphStyle}><strong>Python Development Intern — CODEXINTERN (Remote)</strong></p>
+                <p style={paragraphStyle}>Jul 2025 – Oct 2025</p>
+                <p style={paragraphStyle}>Built 3 applications including a CSV Analysis Tool, Flask-based Sentiment Analysis App, and Gemini + Search API integration</p>
+                <p style={paragraphStyle}>Worked with Python, Flask, REST APIs, and debugging in real project deliveries</p>
+                <p style={paragraphStyle}>Documented projects on GitHub with clear setup instructions</p>
+              </>
+            ),
+          },
           {
             title: "Education & Degree",
             gradient: "linear-gradient(90deg, #28a745, #00c7b7)",
@@ -119,12 +126,12 @@ const About = () => {
             gradient: "linear-gradient(90deg, #ff6b6b, #f5af19)",
             content: (
               <>
-                <p style={paragraphStyle}><FaPython style={skillIconStyle} /> Python, Django, FastAPI, REST APIs, SQLModel</p>
+                <p style={paragraphStyle}><FaPython style={skillIconStyle} /> Python, Django, FastAPI, REST APIs</p>
                 <p style={paragraphStyle}><FaDatabase style={skillIconStyle} /> PostgreSQL (prod), SQLite (dev)</p>
                 <p style={paragraphStyle}><FaDocker style={skillIconStyle} /> Docker</p>
                 <p style={paragraphStyle}><FaAws style={skillIconStyle} /> AWS EC2</p>
                 <p style={paragraphStyle}><FaGitAlt style={skillIconStyle} /> Git, GitHub</p>
-                <p style={paragraphStyle}>Frontend Basics: HTML, CSS, Bootstrap 5</p>
+                <p style={paragraphStyle}>Frontend: React, HTML, CSS, Bootstrap 5 (actively improving UI/UX)</p>
                 <p style={paragraphStyle}>Testing: Pytest, automated test suites</p>
               </>
             ),
@@ -135,54 +142,10 @@ const About = () => {
             content: (
               <>
                 <p style={paragraphStyle}><FaPython style={skillIconStyle} /> Advanced FastAPI and REST API design</p>
-                <p style={paragraphStyle}><FaAws style={skillIconStyle} /> Cloud-native development on AWS</p>
-                <p style={paragraphStyle}><FaReact style={skillIconStyle} /> React.js frontend development</p>
-                <p style={paragraphStyle}><FaTasks style={skillIconStyle} /> CI/CD workflows and production-level deployment practices</p>
+                <p style={paragraphStyle}><FaAws style={skillIconStyle} /> AWS cloud architecture & production deployment</p>
+                <p style={paragraphStyle}><FaReact style={skillIconStyle} /> React.js (component patterns & real-world frontend structure)</p>
+                <p style={paragraphStyle}><FaTasks style={skillIconStyle} /> CI/CD workflows & production deployment practices</p>
               </>
-            ),
-          },
-          {
-            title: "Short Project Highlights",
-            gradient: "linear-gradient(90deg, #00c7b7, #007bff)",
-            content: (
-              <div style={{ textAlign: "center" }}>
-                <p style={paragraphStyle}><strong>Blood Bank Management System (Django)</strong></p>
-                {[
-                  { icon: FaTasks, text: "Admin & user dashboards, donor/request workflows, PDF report generation" },
-                  { icon: FaCheckCircle, text: "Secure login, CAPTCHA, brute-force protection" },
-                  { icon: FaDocker, text: "Deployed on Render using Docker and PostgreSQL" },
-                ].map((item, idx) => {
-                  const IconComp = item.icon;
-                  return (
-                    <p
-                      key={idx}
-                      style={projectLineStyle}
-                      onMouseEnter={e => Object.assign(e.currentTarget.style, projectLineHoverStyle)}
-                      onMouseLeave={e => Object.assign(e.currentTarget.style, projectLineStyle)}
-                    >
-                      <IconComp style={{ marginRight: "0.5rem" }} />{item.text}
-                    </p>
-                  );
-                })}
-                <p style={paragraphStyle}><strong>Job Tracker (FastAPI)</strong></p>
-                {[
-                  { icon: FaTasks, text: "Track, filter, and export job/internship applications" },
-                  { icon: FaCheckCircle, text: "JWT authentication, analytics dashboard, PDF/CSV export" },
-                  { icon: FaDocker, text: "Dockerized deployment on Render and AWS EC2" },
-                ].map((item, idx) => {
-                  const IconComp = item.icon;
-                  return (
-                    <p
-                      key={idx}
-                      style={projectLineStyle}
-                      onMouseEnter={e => Object.assign(e.currentTarget.style, projectLineHoverStyle)}
-                      onMouseLeave={e => Object.assign(e.currentTarget.style, projectLineStyle)}
-                    >
-                      <IconComp style={{ marginRight: "0.5rem" }} />{item.text}
-                    </p>
-                  );
-                })}
-              </div>
             ),
           },
           {
@@ -202,7 +165,7 @@ const About = () => {
             gradient: "linear-gradient(90deg, #ff6b6b, #6f42c1)",
             content: (
               <>
-                <p style={paragraphStyle}>Seeking backend or full-stack developer roles where I can contribute to real-world applications</p>
+                <p style={paragraphStyle}>Seeking backend or full-stack developer roles where I can contribute to real-world production systems</p>
                 <p style={paragraphStyle}>Interested in building scalable web systems, REST APIs, and cloud-deployed projects</p>
                 <p style={paragraphStyle}>Continuously learning FastAPI, React, AWS services, CI/CD workflows, and production-grade deployment practices</p>
               </>

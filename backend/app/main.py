@@ -9,6 +9,7 @@ from app.auth import authenticate_user, create_access_token, get_current_user
 from app.settings import settings
 from typing import List
 from datetime import datetime
+from contextlib import asynccontextmanager
 import csv
 import io
 import logging
@@ -17,7 +18,13 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Portfolio Backend", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    from app.database import engine
+    SQLModel.metadata.create_all(engine)
+    yield
+
+app = FastAPI(title="Portfolio Backend", version="1.0.0", lifespan=lifespan)
 api_router = APIRouter()
 
 # ===================== CORS Setup =====================
@@ -29,12 +36,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 print("Parsed ALLOWED_ORIGINS:", settings.ALLOWED_ORIGINS)
-
-# ===================== Startup Event =====================
-@app.on_event("startup")
-def on_startup():
-    from app.database import engine
-    SQLModel.metadata.create_all(engine)
 
 # ===================== Health Check =====================
 @app.get("/", tags=["Health"])
@@ -62,7 +63,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @api_router.post("/contact", tags=["Contact"])
 def submit_contact(form: ContactForm, session: Session = Depends(get_session)):
     try:
-        contact = Contact(**form.dict())
+        contact = Contact(**form.model_dump())
         session.add(contact)
         session.commit()
         session.refresh(contact)

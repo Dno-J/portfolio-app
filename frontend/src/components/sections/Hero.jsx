@@ -33,11 +33,11 @@ const Hero = () => {
       </h1>
 
       <h2 className={`${styles['fade-up']} ${styles['fade-up-delay-2']} ${styles.subheading}`} style={{ fontSize: fontSizes.subheading, fontWeight: 500, color: "#f0f0f0" }}>
-        Aspiring Full-Stack Developer · Deployment-Ready Engineer
+        Backend-Focused Full-Stack Developer
       </h2>
 
       <p className={`${styles['fade-up']} ${styles['fade-up-delay-3']} ${styles.heroParagraph}`} style={{ fontSize: fontSizes.body, maxWidth: "600px", color: "#e0e0e0" }}>
-        Focused on security, reproducibility, and recruiter polish.
+        I build and deploy secure APIs with FastAPI, Docker, and PostgreSQL.
       </p>
 
       <div className={`${styles['fade-up']} ${styles['fade-up-delay-4']}`} style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>

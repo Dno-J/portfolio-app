@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
 import ProjectCard from "../../components/ui/ProjectCard";
-import { FaGithub, FaExternalLinkAlt, FaAws } from "react-icons/fa";
+import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 
 const Projects = () => {
   const { darkMode } = useContext(ThemeContext);
@@ -30,11 +30,10 @@ const Projects = () => {
       title: "Job Tracker",
       description:
         "FastAPI & React full-stack app to track, filter, and export job/internship applications. Includes JWT authentication, analytics dashboard, PDF/CSV export, and cloud deployment.",
-      tech: ["FastAPI", "React", "PostgreSQL", "Docker", "AWS EC2"],
+      tech: ["FastAPI", "React", "PostgreSQL", "Docker"],
       links: [
         { icon: FaGithub, url: "https://github.com/Dno-J/job-tracker" },
-        { icon: FaExternalLinkAlt, url: "https://job-tracker-59j1.onrender.com/" },
-        { icon: FaAws, url: "http://16.171.148.202:8000/" }
+        { icon: FaExternalLinkAlt, url: "https://job-tracker-59j1.onrender.com/" }
       ],
       screenshots: [
         { src: require("../../assets/screenshots/job-tracker/dashboard.png"), caption: "Dashboard with stats & filters" },
@@ -42,6 +41,24 @@ const Projects = () => {
         { src: require("../../assets/screenshots/job-tracker/edit_job_form.png"), caption: "Edit Job form" },
         { src: require("../../assets/screenshots/job-tracker/filtered_jobs.png"), caption: "Filtered job results" },
         { src: require("../../assets/screenshots/job-tracker/export_pdf.png"), caption: "Export jobs to PDF" }
+      ]
+    },
+    {
+      title: "Blood Bank RAG AI",
+      description:
+        "Full-stack Django + Next.js app demonstrating explainable RAG-style semantic search across donors, hospitals, and blood requests using local embeddings and deterministic AI summaries.",
+      tech: ["Django", "Django REST Framework", "Next.js", "MongoDB", "AI (Sentence Transformers)"],
+      links: [
+        { icon: FaGithub, url: "https://github.com/Dno-J/bloodbank-rag-ai" }
+      ],
+      screenshots: [
+        { src: require("../../assets/screenshots/bloodbank-rag-ai/home-dashboard.png"), caption: "Landing page dashboard" },
+        { src: require("../../assets/screenshots/bloodbank-rag-ai/donors-table.png"), caption: "Donors CRUD dashboard" },
+        { src: require("../../assets/screenshots/bloodbank-rag-ai/hospitals-table.png"), caption: "Hospitals management dashboard" },
+        { src: require("../../assets/screenshots/bloodbank-rag-ai/requests-table.png"), caption: "Blood requests dashboard" },
+        { src: require("../../assets/screenshots/bloodbank-rag-ai/ai-search-empty.png"), caption: "AI search empty state" },
+        { src: require("../../assets/screenshots/bloodbank-rag-ai/ai-search-donors.png"), caption: "AI semantic search – donors" },
+        { src: require("../../assets/screenshots/bloodbank-rag-ai/ai-search-hospitals.png"), caption: "AI semantic search – hospitals" }
       ]
     }
   ];

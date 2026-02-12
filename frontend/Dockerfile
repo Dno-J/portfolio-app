@@ -1,41 +1,39 @@
+# frontend/Dockerfile
+
 # -------------------
-# Build stage
+# Build stage (local npm)
 # -------------------
 FROM node:20-alpine AS build
 
-# Set working directory
 WORKDIR /app
 
-# Install dependencies (using npm ci if shrinkwrap exists)
-COPY package.json npm-shrinkwrap.json ./
+# Install dependencies
+COPY package.json npm-shrinkwrap.json* ./
 RUN npm ci --silent
 
-# Copy environment variables for React build
+# Copy .env for REACT_APP_API_BASE_URL
 COPY .env .env
 
-# Copy the rest of the frontend source code
-COPY . ./
+# Copy frontend source
+COPY . .
 
-# Build optimized production files
+# Build React app
 RUN npm run build
 
-
 # -------------------
-# Production stage
+# Production stage (nginx)
 # -------------------
 FROM nginx:stable-alpine
 
-# Remove default nginx static assets
+# Remove default nginx files
 RUN rm -rf /usr/share/nginx/html/*
 
-# Copy build output from previous stage
+# Copy built files
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Copy custom nginx config
+# Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
-EXPOSE 80
+EXPOSE 80 443
 
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
