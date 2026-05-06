@@ -1,10 +1,12 @@
-import React, { useState, useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { FaBars, FaTimes, FaMoon, FaSun, FaExternalLinkAlt } from "react-icons/fa";
 import { ThemeContext } from "../../context/ThemeContext";
 import styles from "./Navbar.module.css";
 
 const Navbar = ({ isLoggedIn, handleLogout }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { darkMode, toggleTheme } = useContext(ThemeContext);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -15,73 +17,71 @@ const Navbar = ({ isLoggedIn, handleLogout }) => {
     { label: "Contact", path: "/contact" },
   ];
 
-  const isActive = (path) => (location.pathname === path ? "active" : "");
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  const getNavClass = ({ isActive }) =>
+    `${styles.navLink} ${isActive ? styles.activeLink : ""}`;
+
+  const logoutAndRedirect = () => {
+    handleLogout();
+    navigate("/");
+  };
 
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.navContainer}>
-        <div className={styles.logo}>Dino Jackson</div>
+    <header className={styles.navbar}>
+      <nav className={styles.navContainer} aria-label="Main navigation">
+        <Link to="/" className={styles.logo} aria-label="Go to homepage">
+          <span className={styles.logoMark}>DJ</span>
+          <span className={styles.logoText}>Dino Jackson</span>
+        </Link>
 
         <button
+          type="button"
           className={styles.menuToggle}
           onClick={() => setMenuOpen((prev) => !prev)}
+          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={menuOpen}
         >
-          {menuOpen ? "✕" : "☰"}
+          {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
 
-        {/* FIX: use the CSS-module-scoped `styles.open` instead of plain "open" */}
-        <div
-          className={`${styles.navLinks} ${
-            menuOpen ? `${styles.navMobile} ${styles.open}` : ""
-          }`}
-        >
+        <div className={`${styles.navLinks} ${menuOpen ? styles.open : ""}`}>
           {navItems.map(({ label, path }) => (
-            <Link
-              key={path}
-              to={path}
-              className={`${styles.navLink} ${isActive(path)}`}
-              onClick={() => setMenuOpen(false)}
-            >
+            <NavLink key={path} to={path} className={getNavClass} end={path === "/"}>
               {label}
-            </Link>
+            </NavLink>
           ))}
 
-          {isLoggedIn ? (
+          <a
+            href="/resume/Dino_Jackson_Resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.resumeLink}
+          >
+            Resume <FaExternalLinkAlt className={styles.smallIcon} />
+          </a>
+
+          {isLoggedIn && (
             <>
-              <Link
-                to="/submissions"
-                className={`${styles.navLink} ${isActive("/submissions")}`}
-                onClick={() => setMenuOpen(false)}
-              >
+              <NavLink to="/submissions" className={getNavClass}>
                 Submissions
-              </Link>
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setMenuOpen(false);
-                }}
-                className={styles.themeButton}
-                style={{ backgroundColor: "#dc3545", color: "#fff" }}
-              >
+              </NavLink>
+
+              <button type="button" onClick={logoutAndRedirect} className={styles.logoutButton}>
                 Logout
               </button>
             </>
-          ) : (
-            <Link
-              to="/login"
-              className={`${styles.navLink} ${isActive("/login")}`}
-              onClick={() => setMenuOpen(false)}
-            >
-              Login
-            </Link>
           )}
 
-          <button onClick={toggleTheme} className={styles.themeButton}>
-            {darkMode ? "☀️ Light" : "🌙 Dark"}
+          <button type="button" onClick={toggleTheme} className={styles.themeButton}>
+            {darkMode ? <FaSun /> : <FaMoon />}
+            <span>{darkMode ? "Light" : "Dark"}</span>
           </button>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 };
 

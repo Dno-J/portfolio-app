@@ -1,259 +1,343 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ThemeContext } from "../../context/ThemeContext";
+import {
+  FaClipboard,
+  FaDownload,
+  FaEnvelope,
+  FaExclamationCircle,
+  FaInbox,
+  FaSearch,
+  FaSyncAlt,
+} from "react-icons/fa";
 
 const SubmissionsDashboard = () => {
-  const { darkMode } = useContext(ThemeContext);
   const [submissions, setSubmissions] = useState([]);
-  const [filteredSubs, setFilteredSubs] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const [loadingCSV, setLoadingCSV] = useState(false);
   const [search, setSearch] = useState("");
+  const [copyMessage, setCopyMessage] = useState("");
+
   const navigate = useNavigate();
+  const API_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8001";
 
-  useEffect(() => {
-    const API_URL = process.env.REACT_APP_API_BASE_URL;
+  const logoutAndRedirect = () => {
+    localStorage.removeItem("token");
+    window.dispatchEvent(new Event("auth-change"));
+    navigate("/login");
+  };
+
+  const fetchSubmissions = async () => {
     const token = localStorage.getItem("token");
 
-    fetch(`${API_URL}/api/submissions`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          navigate("/login");
-          throw new Error("Unauthorized");
-        }
-        if (!res.ok) throw new Error("Failed to fetch submissions");
-        return res.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setSubmissions(data);
-          setFilteredSubs(data);
-        } else throw new Error("Unexpected response format");
-      })
-      .catch((err) => {
-        console.error("Fetch error:", err);
-        setError("Unable to load submissions. Please log in again.");
-      });
-  }, [navigate]);
+    if (!token) {
+      logoutAndRedirect();
+      return;
+    }
 
-  const handleDownload = async () => {
-    setLoadingCSV(true);
-    const API_URL = process.env.REACT_APP_API_BASE_URL;
-    const token = localStorage.getItem("token");
+    setLoading(true);
+    setError("");
 
     try {
-      const res = await fetch(`${API_URL}/api/export`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(`${API_URL}/api/submissions`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (res.status === 401) {
-        navigate("/login");
-        throw new Error("Unauthorized");
+      if (response.status === 401) {
+        logoutAndRedirect();
+        return;
       }
-      if (!res.ok) throw new Error("Failed to download CSV");
 
-      const blob = await res.blob();
+      if (!response.ok) {
+        throw new Error("Failed to load submissions.");
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error("Unexpected response format from server.");
+      }
+
+      setSubmissions(data);
+    } catch (err) {
+      console.error("Fetch submissions error:", err);
+      setError(err.message || "Unable to load submissions.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubmissions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const filteredSubmissions = useMemo(() => {
+    const value = search.trim().toLowerCase();
+
+    if (!value) return submissions;
+
+    return submissions.filter((submission) => {
+      const name = submission.name || "";
+      const email = submission.email || "";
+      const message = submission.message || "";
+
+      return (
+        name.toLowerCase().includes(value) ||
+        email.toLowerCase().includes(value) ||
+        message.toLowerCase().includes(value)
+      );
+    });
+  }, [search, submissions]);
+
+  const stats = useMemo(() => {
+    const total = submissions.length;
+    const today = new Date().toDateString();
+
+    const todayCount = submissions.filter((submission) => {
+      if (!submission.timestamp) return false;
+      return new Date(submission.timestamp).toDateString() === today;
+    }).length;
+
+    const uniqueEmails = new Set(
+      submissions
+        .map((submission) => submission.email)
+        .filter(Boolean)
+        .map((email) => email.toLowerCase())
+    ).size;
+
+    return {
+      total,
+      todayCount,
+      uniqueEmails,
+    };
+  }, [submissions]);
+
+  const handleDownload = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      logoutAndRedirect();
+      return;
+    }
+
+    setLoadingCSV(true);
+    setError("");
+
+    try {
+      const response = await fetch(`${API_URL}/api/export`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 401) {
+        logoutAndRedirect();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("CSV download failed.");
+      }
+
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `submissions_${new Date()
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = `portfolio_submissions_${new Date()
         .toISOString()
         .slice(0, 19)
         .replace(/[:T]/g, "_")}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("CSV download failed:", err);
-      setError("CSV download failed. Please try again.");
+      console.error("CSV download error:", err);
+      setError(err.message || "CSV download failed. Please try again.");
     } finally {
       setLoadingCSV(false);
     }
   };
 
-  const handleSearch = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearch(value);
-    const filtered = submissions.filter(
-      (s) =>
-        s.name.toLowerCase().includes(value) ||
-        s.email.toLowerCase().includes(value) ||
-        s.message.toLowerCase().includes(value)
-    );
-    setFilteredSubs(filtered);
+  const handleCopyEmail = async (email) => {
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopyMessage(`Copied ${email}`);
+
+      window.setTimeout(() => {
+        setCopyMessage("");
+      }, 2200);
+    } catch {
+      setCopyMessage("Unable to copy email.");
+    }
   };
 
-  const handleCopyEmail = (email) => {
-    navigator.clipboard.writeText(email);
-    alert(`Copied ${email} to clipboard!`);
-  };
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "N/A";
 
-  const bg = darkMode ? "#121212" : "#f5f5f5";
-  const text = darkMode ? "#e0e0e0" : "#000";
-  const tableBg = darkMode ? "#1e1e1e" : "#fff";
-  const rowHover = darkMode ? "#2a2a2a" : "#f0f0f0";
-  const borderColor = darkMode ? "#444" : "#ccc";
-  const inputBg = darkMode ? "#2a2a2a" : "#fff";
-  const inputText = darkMode ? "#e0e0e0" : "#111";
+    const date = new Date(timestamp);
+
+    if (Number.isNaN(date.getTime())) return "N/A";
+
+    return date.toLocaleString();
+  };
 
   return (
-    <div
-      style={{
-        backgroundColor: bg,
-        color: text,
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        padding: "2rem",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "960px",
-          padding: "2rem",
-          textAlign: "center",
-          borderRadius: "8px",
-          backgroundColor: tableBg,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-        }}
-      >
-        <h2 style={{ marginBottom: "1rem" }}>Contact Submissions</h2>
+    <section className="admin-page">
+      <div className="admin-shell">
+        <div className="dashboard-header">
+          <div>
+            <span className="section-kicker">Admin Dashboard</span>
+            <h1>Contact Submissions</h1>
+            <p>
+              Review messages submitted through the portfolio contact form, search
+              conversations, copy email addresses, and export records as CSV.
+            </p>
+          </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "1rem",
-            flexWrap: "wrap",
-            gap: "1rem",
-          }}
-        >
-          <input
-            type="text"
-            placeholder="Search by name, email or message..."
-            value={search}
-            onChange={handleSearch}
-            style={{
-              flexGrow: 1,
-              padding: "8px 12px",
-              borderRadius: "6px",
-              border: `1px solid ${borderColor}`,
-              backgroundColor: inputBg,
-              color: inputText,
-              minWidth: "200px",
-            }}
-          />
-          <button
-            onClick={handleDownload}
-            disabled={loadingCSV}
-            style={{
-              ...buttonStyle,
-              opacity: loadingCSV ? 0.6 : 1,
-              cursor: loadingCSV ? "not-allowed" : "pointer",
-            }}
-          >
-            {loadingCSV ? "Downloading..." : "Download CSV"}
-          </button>
+          <div className="dashboard-actions">
+            <button type="button" onClick={fetchSubmissions} className="admin-secondary-button">
+              Refresh
+              <FaSyncAlt />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDownload}
+              className="admin-primary-button"
+              disabled={loadingCSV || submissions.length === 0}
+            >
+              {loadingCSV ? "Downloading..." : "Download CSV"}
+              <FaDownload />
+            </button>
+          </div>
         </div>
 
-        {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
-        {!error && filteredSubs.length === 0 && <p>No submissions found.</p>}
+        <div className="admin-stats-grid">
+          <article>
+            <span>
+              <FaInbox />
+            </span>
+            <div>
+              <strong>{stats.total}</strong>
+              <p>Total submissions</p>
+            </div>
+          </article>
 
-        {!error && filteredSubs.length > 0 && (
-          <div style={{ overflowX: "auto", marginTop: "1rem" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                minWidth: "600px",
-              }}
-            >
-              <thead
-                style={{
-                  position: "sticky",
-                  top: 0,
-                  backgroundColor: tableBg,
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  zIndex: 1,
-                }}
-              >
-                <tr>
-                  <th style={{ ...thStyle, borderBottom: `2px solid ${borderColor}` }}>Name</th>
-                  <th style={{ ...thStyle, borderBottom: `2px solid ${borderColor}` }}>Email</th>
-                  <th style={{ ...thStyle, borderBottom: `2px solid ${borderColor}` }}>Message</th>
-                  <th style={{ ...thStyle, borderBottom: `2px solid ${borderColor}` }}>Timestamp</th>
-                  <th style={{ ...thStyle, borderBottom: `2px solid ${borderColor}` }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSubs.map((s, idx) => (
-                  <tr
-                    key={s.id}
-                    style={{
-                      backgroundColor: idx % 2 === 0 ? "transparent" : rowHover,
-                      transition: "background 0.2s",
-                    }}
-                  >
-                    <td style={tdStyle}>{s.name}</td>
-                    <td style={tdStyle}>{s.email}</td>
-                    <td style={tdStyle}>{s.message}</td>
-                    <td style={tdStyle}>{new Date(s.timestamp).toLocaleString()}</td>
-                    <td style={tdStyle}>
-                      <button
-                        onClick={() => handleCopyEmail(s.email)}
-                        style={{
-                          backgroundColor: "#28a745",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "6px",
-                          padding: "6px 12px",
-                          cursor: "pointer",
-                          fontSize: "0.85rem",
-                          fontWeight: "bold",
-                          transition: "background 0.2s",
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#218838")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#28a745")}
-                      >
-                        Copy Email
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <article>
+            <span>
+              <FaEnvelope />
+            </span>
+            <div>
+              <strong>{stats.uniqueEmails}</strong>
+              <p>Unique emails</p>
+            </div>
+          </article>
+
+          <article>
+            <span>
+              <FaClipboard />
+            </span>
+            <div>
+              <strong>{stats.todayCount}</strong>
+              <p>Received today</p>
+            </div>
+          </article>
+        </div>
+
+        <div className="submissions-panel">
+          <div className="submissions-toolbar">
+            <div className="search-box">
+              <FaSearch />
+              <input
+                type="text"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search by name, email, or message..."
+              />
+            </div>
+
+            <span className="submission-count">
+              Showing {filteredSubmissions.length} of {submissions.length}
+            </span>
           </div>
-        )}
+
+          {error && (
+            <div className="admin-alert error" role="alert">
+              <FaExclamationCircle />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {copyMessage && (
+            <div className="admin-alert success" role="status">
+              <FaClipboard />
+              <span>{copyMessage}</span>
+            </div>
+          )}
+
+          {loading && <div className="admin-empty-state">Loading submissions...</div>}
+
+          {!loading && !error && filteredSubmissions.length === 0 && (
+            <div className="admin-empty-state">
+              <FaInbox />
+              <h2>No submissions found</h2>
+              <p>
+                {search
+                  ? "No messages match your search."
+                  : "No contact form submissions are available yet."}
+              </p>
+            </div>
+          )}
+
+          {!loading && !error && filteredSubmissions.length > 0 && (
+            <div className="submissions-table-wrap">
+              <table className="submissions-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Message</th>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredSubmissions.map((submission, index) => (
+                    <tr key={submission.id || `${submission.email}-${index}`}>
+                      <td>{submission.name || "N/A"}</td>
+                      <td>
+                        <a href={`mailto:${submission.email}`}>{submission.email || "N/A"}</a>
+                      </td>
+                      <td className="message-cell">{submission.message || "N/A"}</td>
+                      <td>{formatDate(submission.timestamp)}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="copy-button"
+                          onClick={() => handleCopyEmail(submission.email)}
+                          disabled={!submission.email}
+                        >
+                          Copy Email
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   );
-};
-
-const buttonStyle = {
-  backgroundColor: "#007bff",
-  color: "#fff",
-  padding: "10px 20px",
-  border: "none",
-  borderRadius: "6px",
-  fontWeight: "bold",
-  cursor: "pointer",
-  marginBottom: "1rem",
-  transition: "background 0.2s, transform 0.2s",
-};
-
-const thStyle = {
-  padding: "10px",
-  textAlign: "left",
-};
-
-const tdStyle = {
-  padding: "10px",
-  textAlign: "left",
 };
 
 export default SubmissionsDashboard;

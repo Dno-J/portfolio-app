@@ -1,8 +1,16 @@
-import React, { useState, useRef } from "react";
-import "../../App.css";
+import React, { useRef, useState } from "react";
 import Lightbox from "./Lightbox";
 
-const ProjectCard = ({ title, description, tech = [], links = [], screenshots = [], darkMode }) => {
+const ProjectCard = ({
+  title,
+  badge,
+  description,
+  impact,
+  tech = [],
+  features = [],
+  links = [],
+  screenshots = [],
+}) => {
   const [current, setCurrent] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -10,167 +18,151 @@ const ProjectCard = ({ title, description, tech = [], links = [], screenshots = 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
-  const nextSlide = () => setCurrent((prev) => (prev + 1) % screenshots.length);
-  const prevSlide = () => setCurrent((prev) => (prev - 1 + screenshots.length) % screenshots.length);
+  const hasScreenshots = screenshots.length > 0;
+  const hasMultipleScreenshots = screenshots.length > 1;
 
-  const handleTouchStart = (e) => (touchStartX.current = e.targetTouches[0].clientX);
-  const handleTouchMove = (e) => (touchEndX.current = e.targetTouches[0].clientX);
+  const nextSlide = () => {
+    if (!hasScreenshots) return;
+    setCurrent((prev) => (prev + 1) % screenshots.length);
+  };
+
+  const prevSlide = () => {
+    if (!hasScreenshots) return;
+    setCurrent((prev) => (prev - 1 + screenshots.length) % screenshots.length);
+  };
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
   const handleTouchEnd = () => {
     const diff = touchStartX.current - touchEndX.current;
+
     if (diff > 50) nextSlide();
     if (diff < -50) prevSlide();
   };
 
   const openLightbox = (index) => {
+    if (!hasScreenshots) return;
+
     setLightboxIndex(index);
     setLightboxOpen(true);
   };
 
-  const arrowStyle = {
-    background: "transparent",
-    border: "none",
-    fontSize: "1.7rem",
-    fontWeight: "600",
-    padding: "0 0.5rem",
-    cursor: "pointer",
-    transition: "transform 0.2s",
-  };
+  const currentScreenshot = hasScreenshots ? screenshots[current] : null;
 
   return (
     <>
-      <div
-        className="project-card"
-        style={{
-          backgroundColor: darkMode ? "#1e1e1e" : "#fff",
-          color: darkMode ? "#e0e0e0" : "#000",
-        }}
-      >
-        <div
-          className="carousel-container"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {screenshots.length > 0 && (
-            <>
-              <img
-                src={screenshots[current].src || screenshots[current]}
-                alt={`${title} screenshot ${current + 1}`}
-                className="w-full h-full object-cover cursor-pointer"
-                onClick={() => openLightbox(current)}
-              />
+      <article className="project-card">
+        <div className="project-card-media">
+          {badge && <span className="project-badge">{badge}</span>}
 
-              {screenshots.length > 1 && (
-                <div
-                  className="carousel-buttons"
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    gap: "1.5rem",
-                    marginTop: "0.75rem",
-                  }}
-                >
-                  <button
-                    onClick={prevSlide}
-                    style={{
-                      ...arrowStyle,
-                      color: darkMode ? "#fff" : "#111",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                  >
+          {hasScreenshots ? (
+            <div
+              className="carousel-container"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <button
+                type="button"
+                className="screenshot-button"
+                onClick={() => openLightbox(current)}
+                aria-label={`Open ${title} screenshot`}
+              >
+                <img
+                  src={currentScreenshot.src || currentScreenshot}
+                  alt={currentScreenshot.caption || `${title} screenshot`}
+                />
+              </button>
+
+              {hasMultipleScreenshots && (
+                <div className="carousel-controls" aria-label="Screenshot controls">
+                  <button type="button" onClick={prevSlide} aria-label="Previous screenshot">
                     ‹
                   </button>
 
-                  <button
-                    onClick={() => setLightboxOpen(false)}
-                    style={{
-                      ...arrowStyle,
-                      color: darkMode ? "#fff" : "#111",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                  >
-                    ×
-                  </button>
+                  <span>
+                    {current + 1} / {screenshots.length}
+                  </span>
 
-                  <button
-                    onClick={nextSlide}
-                    style={{
-                      ...arrowStyle,
-                      color: darkMode ? "#fff" : "#111",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                  >
+                  <button type="button" onClick={nextSlide} aria-label="Next screenshot">
                     ›
                   </button>
                 </div>
               )}
 
-              {screenshots[current].caption && (
-                <div
-                  className="carousel-caption"
-                  style={{ color: darkMode ? "#ccc" : "#555", marginTop: "0.5rem" }}
-                >
-                  {screenshots[current].caption}
-                </div>
+              {currentScreenshot.caption && (
+                <p className="carousel-caption">{currentScreenshot.caption}</p>
               )}
-            </>
+            </div>
+          ) : (
+            <div className="project-placeholder">
+              <span>{title}</span>
+              <p>Screenshots coming soon</p>
+            </div>
           )}
         </div>
 
-        <div className="p-4">
-          <h3 className={`text-lg font-semibold mb-2 ${darkMode ? "text-white" : "text-black"}`}>
-            {title}
-          </h3>
-          <p className={`${darkMode ? "text-gray-300" : "text-gray-700"} mb-4`}>
-            {description}
-          </p>
-
-          <div className="tech-badge-container">
-            {tech.map((t, idx) => (
-              <span
-                key={idx}
-                className="tech-badge"
-                style={{
-                  backgroundColor: darkMode ? "#333" : "#e0e0e0",
-                  color: darkMode ? "#f0f0f0" : "#333",
-                }}
-              >
-                {t}
-              </span>
-            ))}
+        <div className="project-card-body">
+          <div className="project-title-row">
+            <h2>{title}</h2>
           </div>
 
-          <div className="links">
-            <div
-              style={{
-                color: darkMode ? "#e0e0e0" : "#000",
-                fontWeight: "bold",
-                marginBottom: "0.25rem",
-              }}
-            >
-              Links
+          <p className="project-description">{description}</p>
+
+          {impact && <p className="project-impact">{impact}</p>}
+
+          {features.length > 0 && (
+            <div className="feature-list">
+              {features.slice(0, 6).map((feature) => (
+                <span key={feature}>{feature}</span>
+              ))}
             </div>
-            {links.map((link, idx) => (
-              <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer">
-                <link.icon
-                  style={{ marginRight: "0.25rem", color: darkMode ? "#e0e0e0" : "#111" }}
-                />
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
+          )}
 
-      {lightboxOpen && (
+          {tech.length > 0 && (
+            <div className="tech-badge-container" aria-label={`${title} tech stack`}>
+              {tech.map((item) => (
+                <span key={item} className="tech-badge">
+                  {item}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {links.length > 0 && (
+            <div className="project-links">
+              {links.map((link) => {
+                const Icon = link.icon;
+
+                return (
+                  <a
+                    key={`${title}-${link.label}`}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`project-link ${link.type || ""}`}
+                  >
+                    {Icon && <Icon />}
+                    {link.label}
+                  </a>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </article>
+
+      {lightboxOpen && hasScreenshots && (
         <Lightbox
           screenshots={screenshots}
           onClose={() => setLightboxOpen(false)}
           currentIndex={lightboxIndex}
-          darkMode={darkMode}
         />
       )}
     </>

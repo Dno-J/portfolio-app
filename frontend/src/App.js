@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 
 import { ThemeProvider } from "./context/ThemeContext";
@@ -14,38 +14,73 @@ import Projects from "./pages/Projects/Projects";
 import ContactForm from "./pages/Contact/ContactForm";
 import LoginForm from "./pages/Login/LoginForm";
 
-// Sections / Protected routes
+// Protected pages
 import SubmissionsDashboard from "./components/sections/SubmissionsDashboard";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(localStorage.getItem("token")));
+
+  useEffect(() => {
+    const syncLoginState = () => {
+      setIsLoggedIn(Boolean(localStorage.getItem("token")));
+    };
+
+    window.addEventListener("storage", syncLoginState);
+    window.addEventListener("auth-change", syncLoginState);
+
+    return () => {
+      window.removeEventListener("storage", syncLoginState);
+      window.removeEventListener("auth-change", syncLoginState);
+    };
+  }, []);
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    window.dispatchEvent(new Event("auth-change"));
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    window.location.href = "/login";
+    window.dispatchEvent(new Event("auth-change"));
   };
 
   return (
     <ThemeProvider>
       <Router>
         <Navbar isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/contact" element={<ContactForm />} />
-          <Route
-            path="/submissions"
-            element={
-              <ProtectedRoute>
-                <SubmissionsDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/login" element={<LoginForm />} />
-        </Routes>
+
+        <main>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/contact" element={<ContactForm />} />
+
+            <Route
+              path="/submissions"
+              element={
+                <ProtectedRoute>
+                  <SubmissionsDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/login"
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/submissions" replace />
+                ) : (
+                  <LoginForm onLoginSuccess={handleLoginSuccess} />
+                )
+              }
+            />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
       </Router>
     </ThemeProvider>
   );

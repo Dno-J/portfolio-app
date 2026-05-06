@@ -1,12 +1,12 @@
-from sqlmodel import create_engine, Session
+from sqlmodel import Session, create_engine
+
 from app.settings import settings
 
-DATABASE_URL = settings.DATABASE_URL
-
 engine = create_engine(
-    DATABASE_URL,
-    echo=True,
+    settings.DATABASE_URL,
+    echo=settings.ENV == "development",
 )
+
 
 def get_session():
     with Session(engine) as session:

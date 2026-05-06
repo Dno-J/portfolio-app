@@ -35,7 +35,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-print("Parsed ALLOWED_ORIGINS:", settings.ALLOWED_ORIGINS)
 
 # ===================== Health Check =====================
 @app.get("/", tags=["Health"])

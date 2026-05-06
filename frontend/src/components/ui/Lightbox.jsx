@@ -1,144 +1,162 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import { FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import styles from "./Lightbox.module.css";
 
-const Lightbox = ({ screenshots = [], onClose, currentIndex = 0, darkMode }) => {
+const Lightbox = ({ screenshots = [], onClose, currentIndex = 0 }) => {
   const overlayRef = useRef(null);
-  const [index, setIndex] = useState(currentIndex);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const [index, setIndex] = useState(currentIndex);
+
+  const hasScreenshots = screenshots.length > 0;
+  const hasMultipleScreenshots = screenshots.length > 1;
+
+  const normalizeIndex = useCallback(
+    (value) => {
+      if (!hasScreenshots) return 0;
+      return (value + screenshots.length) % screenshots.length;
+    },
+    [hasScreenshots, screenshots.length]
+  );
+
+  const goPrevious = useCallback(() => {
+    setIndex((prev) => normalizeIndex(prev - 1));
+  }, [normalizeIndex]);
+
+  const goNext = useCallback(() => {
+    setIndex((prev) => normalizeIndex(prev + 1));
+  }, [normalizeIndex]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
+
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     };
   }, []);
 
-  const prevSlide = useCallback(() => {
-    if (screenshots.length > 0) {
-      setIndex((prev) => (prev - 1 + screenshots.length) % screenshots.length);
-    }
-  }, [screenshots.length]);
-
-  const nextSlide = useCallback(() => {
-    if (screenshots.length > 0) {
-      setIndex((prev) => (prev + 1) % screenshots.length);
-    }
-  }, [screenshots.length]);
+  useEffect(() => {
+    setIndex(normalizeIndex(currentIndex));
+  }, [currentIndex, normalizeIndex]);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") prevSlide();
-      if (e.key === "ArrowRight") nextSlide();
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowLeft" && hasMultipleScreenshots) goPrevious();
+      if (event.key === "ArrowRight" && hasMultipleScreenshots) goNext();
     };
+
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose, prevSlide, nextSlide]);
 
-  const handleClickOutside = (e) => {
-    if (e.target === overlayRef.current) onClose();
-  };
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [goNext, goPrevious, hasMultipleScreenshots, onClose]);
 
-  const handleTouchStart = (e) => (touchStartX.current = e.touches[0].clientX);
-  const handleTouchMove = (e) => (touchEndX.current = e.touches[0].clientX);
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-    if (diff > 50) nextSlide();
-    if (diff < -50) prevSlide();
-  };
+  if (!hasScreenshots) return null;
 
   const currentImage = screenshots[index];
+  const imageSrc = currentImage.src || currentImage;
+  const caption = currentImage.caption || "Project screenshot";
 
-  const overlayStyle = {
-    background: darkMode ? "rgba(0,0,0,0.85)" : "rgba(245,245,245,0.95)",
+  const handleOverlayClick = (event) => {
+    if (event.target === overlayRef.current) {
+      onClose();
+    }
   };
-  const captionColor = darkMode ? "#f5f5f5" : "#111";
-  const counterColor = darkMode ? "#ccc" : "#333";
-  const arrowColor = darkMode ? "#fff" : "#111";
 
-  const iconStyle = {
-    background: "transparent",
-    border: "none",
-    fontSize: "1.7rem",
-    fontWeight: "600",
-    padding: "0 0.5rem",
-    cursor: "pointer",
-    transition: "transform 0.2s",
+  const handleTouchStart = (event) => {
+    touchStartX.current = event.touches[0].clientX;
+    touchEndX.current = event.touches[0].clientX;
+  };
+
+  const handleTouchMove = (event) => {
+    touchEndX.current = event.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!hasMultipleScreenshots) return;
+
+    const diff = touchStartX.current - touchEndX.current;
+
+    if (diff > 50) goNext();
+    if (diff < -50) goPrevious();
   };
 
   return (
     <div
       ref={overlayRef}
       className={styles.overlay}
-      style={overlayStyle}
-      onClick={handleClickOutside}
+      onClick={handleOverlayClick}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Project screenshot viewer"
     >
-      <div className={styles.container}>
-        {/* Image */}
-        <div className={styles.imgWrap}>
-          <img
-            src={currentImage.src}
-            alt={currentImage.caption || "Screenshot"}
-            className={styles.image}
-          />
+      <div className={styles.lightbox}>
+        <div className={styles.topBar}>
+          <div>
+            <span className={styles.kicker}>Screenshot Preview</span>
+            <p>
+              {index + 1} of {screenshots.length}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className={styles.closeButton}
+            onClick={onClose}
+            aria-label="Close screenshot viewer"
+          >
+            <FaTimes />
+          </button>
         </div>
 
-        {/* Caption and counter */}
-        {currentImage.caption && (
-          <div className={styles.meta}>
-            <div className={styles.caption} style={{ color: captionColor }}>
-              {currentImage.caption}
-            </div>
-            <div className={styles.counter} style={{ color: counterColor }}>
-              {index + 1} / {screenshots.length}
-            </div>
-          </div>
-        )}
-
-        {/* Navigation: Left × Right */}
-        {screenshots.length > 1 && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "1rem",
-              marginTop: "1rem",
-            }}
-          >
+        <div className={styles.imageStage}>
+          {hasMultipleScreenshots && (
             <button
-              onClick={prevSlide}
-              style={{ ...iconStyle, color: arrowColor }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              type="button"
+              className={`${styles.navButton} ${styles.previous}`}
+              onClick={goPrevious}
+              aria-label="Previous screenshot"
             >
               <FaChevronLeft />
             </button>
+          )}
 
-            <button
-              onClick={onClose}
-              style={{ ...iconStyle, color: arrowColor }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-            >
-              <FaTimes />
-            </button>
+          <img src={imageSrc} alt={caption} className={styles.image} />
 
+          {hasMultipleScreenshots && (
             <button
-              onClick={nextSlide}
-              style={{ ...iconStyle, color: arrowColor }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              type="button"
+              className={`${styles.navButton} ${styles.next}`}
+              onClick={goNext}
+              aria-label="Next screenshot"
             >
               <FaChevronRight />
             </button>
-          </div>
-        )}
+          )}
+        </div>
+
+        <div className={styles.footer}>
+          <p>{caption}</p>
+
+          {hasMultipleScreenshots && (
+            <div className={styles.dots} aria-label="Screenshot position">
+              {screenshots.map((item, dotIndex) => (
+                <button
+                  type="button"
+                  key={`${item.caption || "screenshot"}-${dotIndex}`}
+                  className={dotIndex === index ? styles.activeDot : ""}
+                  onClick={() => setIndex(dotIndex)}
+                  aria-label={`Go to screenshot ${dotIndex + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

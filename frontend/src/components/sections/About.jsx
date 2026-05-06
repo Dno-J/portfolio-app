@@ -1,217 +1,321 @@
-import React, { useContext } from "react";
-import { ThemeContext } from "../../context/ThemeContext";
-import resume from "../../assets/resume/Dino_Jackson_Resume.pdf";
+import React from "react";
 import {
-  FaPython, FaDatabase, FaDocker, FaAws, FaGitAlt, FaFilePdf, FaReact, FaTasks
+  FaAws,
+  FaDatabase,
+  FaDocker,
+  FaExternalLinkAlt,
+  FaFilePdf,
+  FaGitAlt,
+  FaGraduationCap,
+  FaPython,
+  FaReact,
+  FaServer,
+  FaTasks,
 } from "react-icons/fa";
+import resume from "../../assets/resume/Dino_Jackson_Resume.pdf";
 
 const About = () => {
-  const { darkMode } = useContext(ThemeContext);
+  const backendSkills = [
+    "Python",
+    "FastAPI",
+    "Django",
+    "Django REST Framework",
+    "REST APIs",
+    "JWT Auth",
+    "SQLModel",
+    "Pydantic",
+  ];
 
-  const sectionStyle = {
-    padding: "1.5rem",
-    margin: "1rem 0",
-    borderRadius: "12px",
-    boxShadow: darkMode
-      ? "0 4px 12px rgba(0,0,0,0.6)"
-      : "0 4px 12px rgba(0,0,0,0.1)",
-    background: darkMode
-      ? "linear-gradient(145deg, #1a1a1a, #2b2b2b)"
-      : "linear-gradient(145deg, #ffffff, #eaeaea)",
-    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-    cursor: "default",
-  };
+  const databaseSkills = [
+    "PostgreSQL",
+    "Neon",
+    "SQLite",
+    "MongoDB",
+    "SQLAlchemy",
+    "Database Design",
+  ];
 
-  const skillIconStyle = { marginRight: "0.5rem", verticalAlign: "middle" };
-  const hoverCardStyle = {
-    transform: "scale(1.03)",
-    boxShadow: darkMode
-      ? "0 8px 20px rgba(0,0,0,0.7)"
-      : "0 8px 20px rgba(0,0,0,0.2)",
-  };
+  const frontendSkills = [
+    "React",
+    "Next.js",
+    "JavaScript",
+    "HTML",
+    "CSS",
+    "Bootstrap",
+    "Tailwind CSS",
+  ];
 
-  const paragraphStyle = { marginBottom: "0.5rem" };
+  const deploymentSkills = [
+    "Docker",
+    "Docker Compose",
+    "Render",
+    "AWS EC2",
+    "Nginx",
+    "Gunicorn",
+    "Git",
+    "GitHub",
+  ];
 
-  const viewButtonStyle = {
-    backgroundColor: darkMode ? "#ffffff" : "#121212",
-    color: darkMode ? "#121212" : "#ffffff",
-    border: "none",
-    borderRadius: "6px",
-    padding: "0.6rem 1.2rem",
-    fontWeight: "bold",
-    cursor: "pointer",
-    display: "inline-flex",
-    alignItems: "center",
-    transition: "transform 0.2s ease, box-shadow 0.2s ease",
-  };
+  const highlights = [
+    {
+      icon: <FaServer />,
+      title: "Backend Development",
+      text: "I build API-driven applications using FastAPI, Django, authentication, database models, and clean backend workflows.",
+    },
+    {
+      icon: <FaDatabase />,
+      title: "Database Workflows",
+      text: "I work with PostgreSQL, SQLite, Neon, MongoDB, SQLModel, SQLAlchemy, and structured data modeling.",
+    },
+    {
+      icon: <FaDocker />,
+      title: "Deployment",
+      text: "I have deployed projects using Docker, Render, AWS EC2, Nginx, Gunicorn, and environment-based configuration.",
+    },
+    {
+      icon: <FaTasks />,
+      title: "Testing & Reliability",
+      text: "I write backend tests with Pytest and focus on validating authentication, CRUD, exports, APIs, and dashboard behavior.",
+    },
+  ];
 
-  const handleViewButtonHover = (e) => {
-    e.currentTarget.style.transform = "scale(1.05)";
-    e.currentTarget.style.boxShadow = darkMode
-      ? "0 4px 12px rgba(255,255,255,0.4)"
-      : "0 4px 12px rgba(0,0,0,0.4)";
-  };
+  const experiences = [
+    {
+      role: "Python Automation Developer",
+      company: "TrineBridge",
+      period: "Nov 2023 – Jan 2025",
+      points: [
+        "Built Python automation workflows for batch file processing, directory validation, and CSV-based operations.",
+        "Improved reliability using structured error handling and logging.",
+        "Standardized automation across 100+ deliverables to reduce manual effort and repetitive errors.",
+      ],
+    },
+    {
+      role: "Python Development Intern",
+      company: "CODEXINTERN",
+      period: "Jul 2025 – Oct 2025",
+      points: [
+        "Built practical Python applications including a CSV analysis tool, Flask sentiment analysis app, and Gemini/Search API integration.",
+        "Worked with REST APIs, debugging, project documentation, and GitHub-based delivery.",
+      ],
+    },
+  ];
 
-  const handleViewButtonLeave = (e) => {
-    e.currentTarget.style.transform = "scale(1)";
-    e.currentTarget.style.boxShadow = "none";
-  };
+  const skillGroups = [
+    {
+      title: "Backend",
+      icon: <FaPython />,
+      skills: backendSkills,
+    },
+    {
+      title: "Database",
+      icon: <FaDatabase />,
+      skills: databaseSkills,
+    },
+    {
+      title: "Frontend",
+      icon: <FaReact />,
+      skills: frontendSkills,
+    },
+    {
+      title: "Deployment",
+      icon: <FaAws />,
+      skills: deploymentSkills,
+    },
+  ];
 
   return (
-    <div
-      style={{
-        backgroundColor: darkMode ? "#121212" : "#f5f5f5",
-        color: darkMode ? "#e0e0e0" : "#000",
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        padding: "2rem",
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: "960px", textAlign: "center", padding: "2rem" }}>
-        {/* About Me section */}
-        <div style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>About Me</h2>
-          <p style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
-            I’m a Computer Science Engineering graduate from Geetanjali Institute of Technical Studies with a strong focus on backend and full-stack web development. I build secure, scalable, and production-ready applications using Python, Django, and FastAPI. I enjoy designing clean REST APIs, deploying systems with Docker, and working with PostgreSQL in production and SQLite during development.
-          </p>
-          <button
-            onMouseEnter={handleViewButtonHover}
-            onMouseLeave={handleViewButtonLeave}
-            style={viewButtonStyle}
-            onClick={() => window.open(resume, "_blank", "noopener,noreferrer")}
-          >
-            <FaFilePdf style={{ marginRight: "0.5rem", verticalAlign: "middle" }} />
-            View Resume
-          </button>
+    <section className="about-page">
+      <div className="about-shell">
+        <div className="about-hero">
+          <div>
+            <span className="section-kicker">About Me</span>
+            <h1>Backend-focused developer building complete, deployed applications.</h1>
+            <p>
+              I’m a Computer Science Engineering graduate focused on backend and
+              full-stack development. I build production-style projects with APIs,
+              authentication, dashboards, databases, testing, Docker, and cloud
+              deployment.
+            </p>
+
+            <div className="about-actions">
+              <a href={resume} target="_blank" rel="noopener noreferrer" className="about-primary-link">
+                View Resume
+                <FaFilePdf />
+              </a>
+
+              <a
+                href="https://github.com/Dno-J"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="about-secondary-link"
+              >
+                GitHub
+                <FaExternalLinkAlt />
+              </a>
+
+              <a
+                href="https://www.linkedin.com/in/dino-jackson-486840368/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="about-secondary-link"
+              >
+                LinkedIn
+                <FaExternalLinkAlt />
+              </a>
+            </div>
+          </div>
+
+          <div className="about-summary-card">
+            <span>Current Focus</span>
+            <h2>Backend / Full-Stack Developer Roles</h2>
+            <p>
+              I’m currently seeking backend and full-stack developer roles while strengthening
+              my skills in FastAPI, Django, React, cloud deployment, automated testing, and
+              production-ready application development.
+            </p>
+          </div>
         </div>
 
-        {[
-          {
-            title: "Professional Experience",
-            gradient: "linear-gradient(90deg, #00c7b7, #007bff)",
-            content: (
-              <>
-                <p style={paragraphStyle}><strong>Python Automation Developer — TrineBridge</strong></p>
-                <p style={paragraphStyle}>Nov 2023 – Jan 2025</p>
-                <p style={paragraphStyle}>Built and maintained Python automation for batch file processing, directory validation, and CSV workflows</p>
-                <p style={paragraphStyle}>Implemented robust error handling and structured logging to improve reliability</p>
-                <p style={paragraphStyle}>Standardized automation across 100+ deliverables, reducing manual effort and errors</p>
-                <p style={paragraphStyle}>Collaborated with team members to debug failures and refine automation scripts</p>
+        <div className="about-highlight-grid">
+          {highlights.map((item) => (
+            <article className="about-highlight-card" key={item.title}>
+              <div className="about-icon">{item.icon}</div>
+              <h2>{item.title}</h2>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
 
-                <br />
+        <div className="about-section-grid">
+          <section className="about-panel">
+            <div className="about-section-heading">
+              <span className="section-kicker">Experience</span>
+              <h2>Professional background</h2>
+            </div>
 
-                <p style={paragraphStyle}><strong>Python Development Intern — CODEXINTERN (Remote)</strong></p>
-                <p style={paragraphStyle}>Jul 2025 – Oct 2025</p>
-                <p style={paragraphStyle}>Built 3 applications including a CSV Analysis Tool, Flask-based Sentiment Analysis App, and Gemini + Search API integration</p>
-                <p style={paragraphStyle}>Worked with Python, Flask, REST APIs, and debugging in real project deliveries</p>
-                <p style={paragraphStyle}>Documented projects on GitHub with clear setup instructions</p>
-              </>
-            ),
-          },
-          {
-            title: "Education & Degree",
-            gradient: "linear-gradient(90deg, #28a745, #00c7b7)",
-            content: (
-              <>
-                <p style={paragraphStyle}>B.Tech in Computer Science Engineering</p>
-                <p style={paragraphStyle}>Geetanjali Institute of Technical Studies</p>
-                <p style={paragraphStyle}>Graduated: 2025</p>
-                <p style={paragraphStyle}>Strong foundation in data structures, algorithms, databases, and software engineering principles.</p>
-              </>
-            ),
-          },
-          {
-            title: "Skills & Tech Stack",
-            gradient: "linear-gradient(90deg, #ff6b6b, #f5af19)",
-            content: (
-              <>
-                <p style={paragraphStyle}><FaPython style={skillIconStyle} /> Python, Django, FastAPI, REST APIs</p>
-                <p style={paragraphStyle}><FaDatabase style={skillIconStyle} /> PostgreSQL (prod), SQLite (dev)</p>
-                <p style={paragraphStyle}><FaDocker style={skillIconStyle} /> Docker</p>
-                <p style={paragraphStyle}><FaAws style={skillIconStyle} /> AWS EC2</p>
-                <p style={paragraphStyle}><FaGitAlt style={skillIconStyle} /> Git, GitHub</p>
-                <p style={paragraphStyle}>Frontend: React, HTML, CSS, Bootstrap 5 (actively improving UI/UX)</p>
-                <p style={paragraphStyle}>Testing: Pytest, automated test suites</p>
-              </>
-            ),
-          },
-          {
-            title: "Currently Learning",
-            gradient: "linear-gradient(90deg, #6f42c1, #ff6b6b)",
-            content: (
-              <>
-                <p style={paragraphStyle}><FaPython style={skillIconStyle} /> Advanced FastAPI and REST API design</p>
-                <p style={paragraphStyle}><FaAws style={skillIconStyle} /> AWS cloud architecture & production deployment</p>
-                <p style={paragraphStyle}><FaReact style={skillIconStyle} /> React.js (component patterns & real-world frontend structure)</p>
-                <p style={paragraphStyle}><FaTasks style={skillIconStyle} /> CI/CD workflows & production deployment practices</p>
-              </>
-            ),
-          },
-          {
-            title: "Soft Skills / Approach",
-            gradient: "linear-gradient(90deg, #f5af19, #ff6b6b)",
-            content: (
-              <>
-                <p style={paragraphStyle}>Strong problem-solving and debugging skills</p>
-                <p style={paragraphStyle}>Clean, maintainable, and testable code approach</p>
-                <p style={paragraphStyle}>Comfortable with collaborative workflows and version control</p>
-                <p style={paragraphStyle}>Analytical mindset with a focus on data-driven decisions</p>
-              </>
-            ),
-          },
-          {
-            title: "Career Focus / Goals",
-            gradient: "linear-gradient(90deg, #ff6b6b, #6f42c1)",
-            content: (
-              <>
-                <p style={paragraphStyle}>Seeking backend or full-stack developer roles where I can contribute to real-world production systems</p>
-                <p style={paragraphStyle}>Interested in building scalable web systems, REST APIs, and cloud-deployed projects</p>
-                <p style={paragraphStyle}>Continuously learning FastAPI, React, AWS services, CI/CD workflows, and production-grade deployment practices</p>
-              </>
-            ),
-          },
-          {
-            title: "Publications & Research",
-            gradient: "linear-gradient(90deg, #28a745, #00c7b7)",
-            content: (
-              <>
-                <p style={paragraphStyle}>
-                  Blood Bank Management System — Co-authored and published in International Journal of Emerging Technologies and Innovative Research (IJETIR), Vol.12, Issue 6, June 2025
+            <div className="timeline">
+              {experiences.map((item) => (
+                <article className="timeline-item" key={`${item.role}-${item.company}`}>
+                  <div className="timeline-marker" />
+                  <div>
+                    <h3>{item.role}</h3>
+                    <p className="timeline-meta">
+                      {item.company} · {item.period}
+                    </p>
+                    <ul>
+                      {item.points.map((point) => (
+                        <li key={point}>{point}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="about-panel">
+            <div className="about-section-heading">
+              <span className="section-kicker">Education</span>
+              <h2>Academic background</h2>
+            </div>
+
+            <div className="education-card">
+              <div className="about-icon">
+                <FaGraduationCap />
+              </div>
+              <div>
+                <h3>B.Tech in Computer Science Engineering</h3>
+                <p>Geetanjali Institute of Technical Studies</p>
+                <span>Graduated: 2025</span>
+              </div>
+            </div>
+
+            <div className="education-card">
+              <div className="about-icon">
+                <FaBookIcon />
+              </div>
+              <div>
+                <h3>Published Research Work</h3>
+                <p>
+                  Blood Bank Management System — International Journal of Emerging
+                  Technologies and Innovative Research, Vol. 12, Issue 6, June 2025.
                 </p>
-                <p style={paragraphStyle}>Focus: Donor registration, blood inventory management, and real-time emergency allocation</p>
-                <p style={paragraphStyle}>
-                  <a href="https://www.jetir.org/papers/JETIRGW06017.pdf" target="_blank" rel="noopener noreferrer" style={{ color: "#1f8ef1" }}>
-                    View Publication PDF
-                  </a>
-                </p>
-              </>
-            ),
-          },
-        ].map((section, idx) => (
-          <div
-            key={idx}
-            style={sectionStyle}
-            className="hover-section"
-            onMouseEnter={e => Object.assign(e.currentTarget.style, hoverCardStyle)}
-            onMouseLeave={e =>
-              Object.assign(e.currentTarget.style, {
-                transform: "scale(1)",
-                boxShadow: darkMode
-                  ? "0 4px 12px rgba(0,0,0,0.6)"
-                  : "0 4px 12px rgba(0,0,0,0.1)"
-              })
-            }
-          >
-            <h3 style={{ fontSize: "1.5rem", marginBottom: "0.5rem", background: section.gradient, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              {section.title}
-            </h3>
-            {section.content}
+                <a
+                  href="https://www.jetir.org/papers/JETIRGW06017.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Publication <FaExternalLinkAlt />
+                </a>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section className="about-panel">
+          <div className="about-section-heading">
+            <span className="section-kicker">Tech Stack</span>
+            <h2>Tools I use to build projects</h2>
           </div>
-        ))}
+
+          <div className="skills-grid">
+            {skillGroups.map((group) => (
+              <article className="skill-group" key={group.title}>
+                <div className="skill-title">
+                  <span>{group.icon}</span>
+                  <h3>{group.title}</h3>
+                </div>
+
+                <div className="skill-tags">
+                  {group.skills.map((skill) => (
+                    <span key={skill}>{skill}</span>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="about-panel about-goals-panel">
+          <div>
+            <span className="section-kicker">How I Work</span>
+            <h2>Project approach</h2>
+          </div>
+
+          <div className="goals-grid">
+            <div>
+              <h3>Build complete workflows</h3>
+              <p>
+                I prefer projects that include authentication, database models,
+                dashboards, APIs, deployment, and documentation instead of isolated
+                code snippets.
+              </p>
+            </div>
+
+            <div>
+              <h3>Document clearly</h3>
+              <p>
+                I focus on clean READMEs, setup instructions, screenshots, deployment
+                notes, and project explanations that recruiters and developers can
+                understand quickly.
+              </p>
+            </div>
+
+            <div>
+              <h3>Keep improving</h3>
+              <p>
+                I’m actively improving FastAPI, React, AWS, CI/CD, testing, and
+                production deployment practices through portfolio projects.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
-    </div>
+    </section>
   );
 };
+
+const FaBookIcon = () => <FaGitAlt />;
 
 export default About;
